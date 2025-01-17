@@ -10,7 +10,7 @@
     "dev": "tsup --watch && npm run start",
     "prepare": "npm run build"
   },
-  "author": "Joseph Hornby",
+  "author": "Joe Hornby",
   "license": "MIT",
   "dependencies": {
     "@octokit/rest": "^21.1.0",
