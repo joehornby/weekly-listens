@@ -1,4 +1,4 @@
-import { Octokit } from "octokit";
+import { Octokit } from "@octokit/rest";
 import fetch from "node-fetch";
 import eaw from "eastasianwidth";
 
@@ -10,7 +10,7 @@ const {
 } = process.env;
 
 const octokit = new Octokit({
-    auth: `token ${githubToken}`,
+    auth: `${githubToken}`,
 })
 
 const MAX_NUM_ARTISTS = 10;
@@ -20,6 +20,19 @@ async function main () {
         throw new Error("Required env vars are missing");
     }
 
+    // Get existing gh gist
+    let gist;
+
+    try {
+        gist = await octokit.gists.get({
+            gist_id: gistId,
+        });
+    } catch (error) {
+        console.error("Error fetching gist:", error);
+        return
+    }
+
+    // Get last.fm data
     const artists = await getTopArtists();
 
     const numberOfArtists = Math.min(MAX_NUM_ARTISTS, artists.length);
@@ -27,7 +40,8 @@ async function main () {
     const totalPlays = artists.slice(0, numberOfArtists)
         .reduce((total, { playcount }) => total + parseInt(playcount, 10), 0);
 
-    const lines = await Promise.all(artists.map(async ({ name, playcount }) => {
+    // Process and format last.fm data
+    const lines = await Promise.all(artists.map(async ({ name, playcount }, index) => {
         // Find out if artist is new this week
         const isNewThisWeek = await isArtistNewThisWeek(name, playcount);
 
@@ -38,11 +52,27 @@ async function main () {
         const plays = parseInt(playcount, 10);
         const bar = generateChart(plays / totalPlays, 12);
 
-        return `${name} ${bar} ${plays.toString().padStart(5, " ")} plays`;
+        return `${(index + 1).toString().padStart(2, "0")}. ${name} ${bar} ${plays.toString().padStart(5, " ")} plays`;
     }))
     
-    lines.forEach((line, index) => console.log(`${(index + 1).toString().padStart(2, "0")}. ${line}`))
-    console.log(`    * = new this week`);
+    // const formattedContent = lines.map((line, index) => `${(index + 1).toString().padStart(2, "0")}. ${line}\n`) + `    * = new this week`;
+    const formattedContent = lines.join("\n") + `\n    * = new this week`;
+    console.log(formattedContent)
+    try {
+        const filename = Object.keys(gist.data.files)[0];
+        
+        await octokit.gists.update({
+            gist_id: gistId,
+            files: {
+                [filename]: {
+                    filename: `🎧 My top music artists this week`,
+                    content: formattedContent,
+                },
+            },
+        });
+    } catch (error) {
+        console.error(`Unable to update gist:\n${error}`);
+    }
 }
 
 async function getTopArtists() {
