@@ -1,0 +1,11 @@
+name: weekly-listens
+author: Joe Hornby
+description: GitHub Action to post top artists from the last 7 days from Last.fm to a Gist
+
+runs:
+  using: node20
+  main: ./dist/index.js
+
+branding:
+  icon: headphones
+  color: black
