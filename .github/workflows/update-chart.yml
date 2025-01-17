@@ -1,0 +1,25 @@
+name: update-chart
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  push:
+    branches:
+      - master
+jobs:
+  weekly-listens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm install
+      - run: npm run build
+      - run: node dist/index.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_USER: ${{ secrets.LASTFM_USER }}
+          GIST_ID: ${{ secrets.GIST_ID }}
+          GIST_FILENAME: ${{ secrets.GIST_FILENAME }}
