@@ -119,13 +119,11 @@ async function createTopArtistList(
       name = `${name}${isNewThisWeek ? " *" : ""}`;
 
       // format table entry
-      name = adjustAndPad(name.substring(0, 25), 26);
+      name = adjustAndPad(name.substring(0, 22), 23);
       const plays = parseInt(playcount, 10);
       const bar = generateChart(plays / totalPlays, 12);
 
-      return `${(index + 1).toString()} ${name} ${bar} ${plays
-        .toString()
-        .padStart(5, " ")} plays`;
+      return `${name} ${bar} ${plays.toString().padStart(5, " ")} plays`;
     })
   );
 

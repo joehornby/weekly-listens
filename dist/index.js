@@ -30,7 +30,7 @@ async function main() {
       console.log(title);
       console.log(formattedContent);
     } else {
-      await updateGist(gist, formattedContent, title, config);
+      await updateGist(gist, title, formattedContent, config);
     }
   } catch (error) {
     console.error("An error occurred:", error);
@@ -74,10 +74,10 @@ async function createTopArtistList(artists, listLength, config2) {
         config2
       );
       name = `${name}${isNewThisWeek ? " *" : ""}`;
-      name = adjustAndPad(name.substring(0, 25), 26);
+      name = adjustAndPad(name.substring(0, 22), 23);
       const plays = parseInt(playcount, 10);
       const bar = generateChart(plays / totalPlays, 12);
-      return `${(index + 1).toString()} ${name} ${bar} ${plays.toString().padStart(5, " ")} plays`;
+      return `${name} ${bar} ${plays.toString().padStart(5, " ")} plays`;
     })
   );
   return lines.join("\n") + `
@@ -115,7 +115,7 @@ async function isArtistNewThisWeek(name, playcount, config2) {
     return false;
   }
 }
-async function updateGist(gist, content, config2) {
+async function updateGist(gist, title, content, config2) {
   try {
     const filename = gist.data.files ? Object.keys(gist.data.files)[0] : "";
     await octokit.rest.gists.update({
