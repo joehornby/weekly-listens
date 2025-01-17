@@ -3,9 +3,17 @@
   "version": "1.0.0",
   "description": "Fetch top played artists from Last.fm and add to a Gist.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "start": "node --env-file=.env index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Joseph Hornby",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^21.1.0",
+    "eastasianwidth": "^0.3.0",
+    "node-fetch": "^3.3.2",
+    "octokit": "^4.1.0"
+  }
 }
