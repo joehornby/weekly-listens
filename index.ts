@@ -59,7 +59,7 @@ async function main() {
       console.log(title);
       console.log(formattedContent);
     } else {
-      await updateGist(gist, formattedContent, title, config);
+      await updateGist(gist, title, formattedContent, config);
     }
   } catch (error) {
     console.error("An error occurred:", error);
@@ -175,6 +175,7 @@ async function isArtistNewThisWeek(
 
 async function updateGist(
   gist: GetResponseTypeFromEndpointMethod<typeof octokit.rest.gists.get>,
+  title: string,
   content: string,
   config: Config
 ) {
