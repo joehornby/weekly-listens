@@ -74,7 +74,7 @@ async function createTopArtistList(artists, listLength, config2) {
         config2
       );
       name = `${name}${isNewThisWeek ? " *" : ""}`;
-      name = adjustAndPad(name.substring(0, 22), 23);
+      name = adjustAndPad(name.substring(0, 27), 28);
       const plays = parseInt(playcount, 10);
       const bar = generateChart(plays / totalPlays, 12);
       return `${name} ${bar} ${plays.toString().padStart(5, " ")} plays`;
