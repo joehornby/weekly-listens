@@ -1,7 +1,8 @@
 name: update-chart
 on:
   schedule:
-    - cron: "0 8 * * *"
+    # - cron: "0 8 * * *"
+    - cron: "0 * * * *"
   push:
     branches:
       - master
@@ -18,8 +19,7 @@ jobs:
       - run: npm run build
       - run: node dist/index.js
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          LASTFM_USER: ${{ secrets.LASTFM_USER }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          LASTFM_KEY: ${{ secrets.LASTFM_KEY }}
+          LASTFM_USERNAME: ${{ secrets.LASTFM_USERNAME }}
           GIST_ID: ${{ secrets.GIST_ID }}
-          GIST_FILENAME: ${{ secrets.GIST_FILENAME }}
