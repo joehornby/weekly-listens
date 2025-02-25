@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 jobs:
   weekly-listens:
     runs-on: ubuntu-latest
