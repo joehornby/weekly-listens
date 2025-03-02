@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 import {
   type LastFMArtistGetInfoResponse,
   type LastFMUserGetTopArtistsResponse,
-} from "./types.js";
+} from "../types.js";
 import {
   type GetResponseTypeFromEndpointMethod,
   type GetResponseDataTypeFromEndpointMethod,
@@ -130,7 +130,7 @@ async function createTopArtistList(
   return lines.join("\n") + `\n\n* = new this week`;
 }
 
-function adjustAndPad(str: string, maxWidth: number) {
+export function adjustAndPad(str: string, maxWidth: number) {
   const width = stringWidth(str);
 
   // If it fits, just pad it
@@ -154,92 +154,6 @@ function adjustAndPad(str: string, maxWidth: number) {
   const paddingNeeded = maxWidth - stringWidth(truncatedStr);
   return truncatedStr + " ".repeat(paddingNeeded);
 }
-
-function testAdjustAndPad() {
-  console.log("=== Testing adjustAndPad function ===");
-
-  // Test with East Asian characters
-  console.log("\n--- East Asian Characters ---");
-  testCase("你好世界", 8, "你好世界", "Chinese characters");
-  testCase("こんにちは", 10, "こんにちは", "Japanese characters");
-  testCase("안녕하세요", 10, "안녕하세요", "Korean characters");
-
-  // Test with European accented characters
-  console.log("\n--- European Accented Characters ---");
-  testCase("café", 6, "café  ", "é character");
-  testCase("München", 8, "München ", "ü character");
-  testCase("François", 10, "François  ", "ç character");
-  testCase("Dvořák", 7, "Dvořák ", "ř character");
-
-  // Test with mixed characters
-  console.log("\n--- Mixed Characters ---");
-  testCase("Tokyo東京", 10, "Tokyo東京 ", "mixed Latin and East Asian");
-  testCase("Café☕", 7, "Café☕ ", "Latin with emoji");
-
-  // Korean example - based on character analysis, we know it should truncate after "소년"
-  testCase(
-    "BTS (방탄소년단)",
-    15,
-    "BTS (방탄소년단",
-    "Korean group name with parentheses"
-  );
-
-  // Test with truncation
-  console.log("\n--- Truncation Tests ---");
-  testCase("你好世界Hello", 8, "你好世界", "truncation of mixed characters");
-  testCase("Beyoncé", 4, "Beyo", "truncation with accented character");
-
-  // BLACKPINK example - based on character analysis, we know BLACKPINK is width 9
-  // and max width is 10, so it should be "BLACKPINK " (with one space)
-  testCase("BLACKPINK블랙핑크", 10, "BLACKPINK ", "truncation at boundary");
-
-  // Edge cases
-  console.log("\n--- Edge Cases ---");
-  testCase("", 5, "     ", "empty string");
-  testCase("a", 0, "", "zero width");
-
-  // Emoji family example - we know the emoji is width 2, and "Fa" is width 2
-  // so with max width 8, it should fit "👨‍👩‍👧‍👦Fami" (emoji + 4 letters)
-  testCase("👨‍👩‍👧‍👦Family", 8, "👨‍👩‍👧‍👦Fami", "complex emoji");
-  testCase("🎵🎶🎸", 6, "🎵🎶🎸", "multiple emojis");
-
-  console.log("\n=== All tests completed! ===");
-}
-
-// Helper function to run a test case and report results
-function testCase(
-  input: string,
-  maxWidth: number,
-  expected: string,
-  description: string
-) {
-  const result = adjustAndPad(input, maxWidth);
-  const resultWidth = stringWidth(result);
-  const expectedWidth = stringWidth(expected);
-
-  console.log(
-    `Testing: "${input}" (width: ${stringWidth(input)}) → max width ${maxWidth}`
-  );
-  console.log(`Result: "${result}" (width: ${resultWidth})`);
-
-  if (result === expected) {
-    console.log(`✅ PASSED: ${description}`);
-  } else {
-    console.log(`❌ FAILED: ${description}`);
-    console.log(`   Expected: "${expected}" (width: ${expectedWidth})`);
-    console.log(`   Actual:   "${result}" (width: ${resultWidth})`);
-  }
-
-  // Also verify the width is correct
-  if (resultWidth !== maxWidth) {
-    console.log(
-      `⚠️ WARNING: Result width ${resultWidth} doesn't match target width ${maxWidth}`
-    );
-  }
-}
-
-// Run the tests
-testAdjustAndPad();
 
 function generateChart(fraction: number, size: number) {
   const position = Math.floor(fraction * size);
