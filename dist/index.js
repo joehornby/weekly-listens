@@ -1,4 +1,4 @@
-// index.ts
+// src/index.ts
 import { Octokit } from "octokit";
 import fetch from "node-fetch";
 import stringWidth from "string-width";
@@ -102,59 +102,6 @@ function adjustAndPad(str, maxWidth) {
   const paddingNeeded = maxWidth - stringWidth(truncatedStr);
   return truncatedStr + " ".repeat(paddingNeeded);
 }
-function testAdjustAndPad() {
-  console.log("=== Testing adjustAndPad function ===");
-  console.log("\n--- East Asian Characters ---");
-  testCase("\u4F60\u597D\u4E16\u754C", 8, "\u4F60\u597D\u4E16\u754C", "Chinese characters");
-  testCase("\u3053\u3093\u306B\u3061\u306F", 10, "\u3053\u3093\u306B\u3061\u306F", "Japanese characters");
-  testCase("\uC548\uB155\uD558\uC138\uC694", 10, "\uC548\uB155\uD558\uC138\uC694", "Korean characters");
-  console.log("\n--- European Accented Characters ---");
-  testCase("caf\xE9", 6, "caf\xE9  ", "\xE9 character");
-  testCase("M\xFCnchen", 8, "M\xFCnchen ", "\xFC character");
-  testCase("Fran\xE7ois", 10, "Fran\xE7ois  ", "\xE7 character");
-  testCase("Dvo\u0159\xE1k", 7, "Dvo\u0159\xE1k ", "\u0159 character");
-  console.log("\n--- Mixed Characters ---");
-  testCase("Tokyo\u6771\u4EAC", 10, "Tokyo\u6771\u4EAC ", "mixed Latin and East Asian");
-  testCase("Caf\xE9\u2615", 7, "Caf\xE9\u2615 ", "Latin with emoji");
-  testCase(
-    "BTS (\uBC29\uD0C4\uC18C\uB144\uB2E8)",
-    15,
-    "BTS (\uBC29\uD0C4\uC18C\uB144\uB2E8",
-    "Korean group name with parentheses"
-  );
-  console.log("\n--- Truncation Tests ---");
-  testCase("\u4F60\u597D\u4E16\u754CHello", 8, "\u4F60\u597D\u4E16\u754C", "truncation of mixed characters");
-  testCase("Beyonc\xE9", 4, "Beyo", "truncation with accented character");
-  testCase("BLACKPINK\uBE14\uB799\uD551\uD06C", 10, "BLACKPINK ", "truncation at boundary");
-  console.log("\n--- Edge Cases ---");
-  testCase("", 5, "     ", "empty string");
-  testCase("a", 0, "", "zero width");
-  testCase("\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466}Family", 8, "\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466}Fami", "complex emoji");
-  testCase("\u{1F3B5}\u{1F3B6}\u{1F3B8}", 6, "\u{1F3B5}\u{1F3B6}\u{1F3B8}", "multiple emojis");
-  console.log("\n=== All tests completed! ===");
-}
-function testCase(input, maxWidth, expected, description) {
-  const result = adjustAndPad(input, maxWidth);
-  const resultWidth = stringWidth(result);
-  const expectedWidth = stringWidth(expected);
-  console.log(
-    `Testing: "${input}" (width: ${stringWidth(input)}) \u2192 max width ${maxWidth}`
-  );
-  console.log(`Result: "${result}" (width: ${resultWidth})`);
-  if (result === expected) {
-    console.log(`\u2705 PASSED: ${description}`);
-  } else {
-    console.log(`\u274C FAILED: ${description}`);
-    console.log(`   Expected: "${expected}" (width: ${expectedWidth})`);
-    console.log(`   Actual:   "${result}" (width: ${resultWidth})`);
-  }
-  if (resultWidth !== maxWidth) {
-    console.log(
-      `\u26A0\uFE0F WARNING: Result width ${resultWidth} doesn't match target width ${maxWidth}`
-    );
-  }
-}
-testAdjustAndPad();
 function generateChart(fraction, size) {
   const position = Math.floor(fraction * size);
   return "\u2013".repeat(position) + "|" + "\u2013".repeat(size - position - 1);
@@ -203,4 +150,7 @@ ${error}`);
 (async () => {
   await main();
 })();
+export {
+  adjustAndPad
+};
 //# sourceMappingURL=index.js.map
