@@ -1,6 +1,6 @@
 {
   "name": "weekly-listens",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Fetch top played artists from Last.fm and add to a Gist.",
   "main": "index.js",
   "type": "module",
@@ -8,7 +8,8 @@
     "start": "node --env-file=.env dist/index.js",
     "build": "tsup",
     "dev": "tsup --watch && npm run start",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "echo 'This project uses Bun for testing. Running `bun test`' && bun test"
   },
   "author": "Joe Hornby",
   "license": "MIT",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@octokit/types": "^13.7.0",
+    "@types/bun": "latest",
     "@types/node": "^22.10.7",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3"
