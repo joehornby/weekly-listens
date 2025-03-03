@@ -14,27 +14,43 @@ Nilüfer Yanya                –|––––––––––     9 plays
 
 ## Setup
 
-I'm using Bun for this project.
+You will need to:
+
+1. Create a new Gist on GitHub.
+2. Create a new Last.fm API key.
+3. Create a new GitHub token with gist and repo scopes.
+
+Then create a `.env` file in the root of the project with the following variables from your GitHub and Last.fm accounts:
+
+```bash
+# .env
+
+GIST_ID=
+GH_TOKEN=
+LASTFM_KEY=
+LASTFM_USERNAME=
+```
+
+## Installation
 
 ```bash
 bun install
 ```
 
-## Usage
+## Build
 
 ```bash
-bun run start
+bun run build
 ```
 
-## Development
+## Run
 
-```bash
-bun run dev
-```
+Check `.github/workflows/update-chart.yml` for the GitHub Actions workflow.
+It's set to run every day at 8am UTC. If you want to run it weekly instead, you can change the cron schedule to something like `0 0 * * 0` (midnight Sunday).
 
 ## Testing
 
-I'm using Bun's built-in test runner for this project. The API is similar to Jest or Vitest if you'd prefer to install those and use them instead.
+I'm using Bun's test runner. The API is similar to Jest or Vitest if you'd prefer to install those and use them instead.
 
 ```bash
 bun test
