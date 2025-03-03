@@ -9,7 +9,7 @@
     "build": "tsup",
     "dev": "tsup --watch && npm run start",
     "prepare": "npm run build",
-    "test": "jest"
+    "test": "echo 'This project uses Bun for testing. Running `bun test`' && bun test"
   },
   "author": "Joe Hornby",
   "license": "MIT",
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@octokit/types": "^13.7.0",
+    "@types/bun": "latest",
     "@types/node": "^22.10.7",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3"
