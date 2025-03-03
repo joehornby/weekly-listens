@@ -1,6 +1,6 @@
 {
   "name": "weekly-listens",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Fetch top played artists from Last.fm and add to a Gist.",
   "main": "index.js",
   "type": "module",
