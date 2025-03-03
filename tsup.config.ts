@@ -4,7 +4,7 @@ export default defineConfig({
   clean: true,
   minify: false,
   bundle: true,
-  entry: ["src/index.ts"],
+  entry: ["index.ts"],
   format: ["esm"],
   sourcemap: true,
   target: "esnext",

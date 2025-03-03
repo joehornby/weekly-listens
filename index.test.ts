@@ -1,5 +1,6 @@
-import { adjustAndPad } from "../src/index.js";
+import { adjustAndPad } from "./index.js";
 import { test, expect, describe } from "bun:test";
+
 describe("testing East Asian name truncation and padding", () => {
   test("Chinese characters should be padded to 8 characters", () => {
     expect(adjustAndPad("你好世界", 8)).toBe("你好世界");
