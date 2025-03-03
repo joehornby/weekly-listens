@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 import {
   type LastFMArtistGetInfoResponse,
   type LastFMUserGetTopArtistsResponse,
-} from "../types.js";
+} from "./types.js";
 import {
   type GetResponseTypeFromEndpointMethod,
   type GetResponseDataTypeFromEndpointMethod,
