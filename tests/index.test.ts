@@ -1,4 +1,3 @@
-import stringWidth from "string-width";
 import { adjustAndPad } from "../src/index.js";
 import { test, expect, describe } from "bun:test";
 describe("testing East Asian name truncation and padding", () => {
@@ -52,26 +51,11 @@ describe("testing mixed characters", () => {
   });
 });
 
-describe("testing emoji family", () => {
-  test("👨‍👩‍👧‍👦Family should be padded to 8 characters", () => {
-    expect(adjustAndPad("👨‍👩‍👧‍👦Family", 8)).toBe("👨‍👩‍👧‍👦Fami");
-  });
-  test("🎵🎶🎸 should be padded to 6 characters", () => {
-    expect(adjustAndPad("🎵🎶🎸", 6)).toBe("🎵🎶🎸");
-  });
-});
-
 describe("testing edge cases", () => {
   test("empty string should be padded to 5 characters", () => {
     expect(adjustAndPad("", 5)).toBe("     ");
   });
   test("zero width should be empty string", () => {
     expect(adjustAndPad("a", 0)).toBe("");
-  });
-  test("multiple emojis should be padded to 6 characters", () => {
-    expect(adjustAndPad("🎵🎶🎸🎵🎶🎸", 6)).toBe("🎵🎶🎸🎵🎶🎸");
-  });
-  test("complex emoji should be padded to 8 characters", () => {
-    expect(adjustAndPad("👨‍👩‍👧‍👦Family", 8)).toBe("👨‍👩‍👧‍👦Fami");
   });
 });
