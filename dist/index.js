@@ -1,4 +1,4 @@
-// src/index.ts
+// index.ts
 import { Octokit } from "octokit";
 import fetch from "node-fetch";
 import stringWidth from "string-width";
