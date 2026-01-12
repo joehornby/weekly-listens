@@ -1,4 +1,4 @@
-import { adjustAndPad } from "./index.js";
+import { adjustAndPad, createTopArtistList, generateChart } from "./index.js";
 import { test, expect, describe } from "bun:test";
 
 describe("testing East Asian name truncation and padding", () => {
@@ -58,5 +58,136 @@ describe("testing edge cases", () => {
   });
   test("zero width should be empty string", () => {
     expect(adjustAndPad("a", 0)).toBe("");
+  });
+});
+
+// Mock configuration for testing
+const mockConfig = {
+  gistId: "test-gist",
+  githubToken: "test-token", 
+  lastfmKey: "test-key",
+  lastfmUsername: "test-user"
+};
+
+describe("Empty Data Handling", () => {
+  test("should return creative message when no artists", async () => {
+    const originalLog = console.log;
+    const logMessages: string[] = [];
+    console.log = (message: string) => { logMessages.push(message); };
+    
+    const result = await createTopArtistList([], 5, mockConfig);
+    
+    expect(result).toBe("No spotify this week – probably exploring podcasts, audiobooks and analog music.");
+    expect(logMessages[0]).toBe("No listening data found for this week - using fallback message");
+    
+    console.log = originalLog;
+  });
+
+  test("should return creative message when total plays is zero", async () => {
+    const originalLog = console.log;
+    const logMessages: string[] = [];
+    console.log = (message: string) => { logMessages.push(message); };
+    
+    // Create properly typed artist objects with zero play counts
+    const artistsWithZeroPlays = [
+      {
+        streamable: 0 as const,
+        image: [{ "#text": "", size: "" }],
+        mbid: "",
+        url: "",
+        playcount: "0",
+        "@attr": { rank: "1" },
+        name: "Artist 1"
+      },
+      {
+        streamable: 0 as const,
+        image: [{ "#text": "", size: "" }],
+        mbid: "",
+        url: "",
+        playcount: "0",
+        "@attr": { rank: "2" },
+        name: "Artist 2"
+      }
+    ];
+    
+    const result = await createTopArtistList(artistsWithZeroPlays, 5, mockConfig);
+    
+    expect(result).toBe("No spotify this week – probably exploring podcasts, audiobooks and analog music.");
+    expect(logMessages[0]).toBe("Total plays is zero - using fallback message");
+    
+    console.log = originalLog;
+  });
+});
+
+describe("Chart Generation Edge Cases", () => {
+  test("should handle NaN input gracefully", () => {
+    const originalLog = console.log;
+    const logMessages: string[] = [];
+    console.log = (message: string) => { logMessages.push(message); };
+    
+    const result = generateChart(NaN, 10);
+    
+    expect(result).toBe("–––––|––––");
+    expect(logMessages[0]).toBe("Invalid fraction value: NaN - using balanced chart");
+    
+    console.log = originalLog;
+  });
+
+  test("should handle Infinity input gracefully", () => {
+    const originalLog = console.log;
+    const logMessages: string[] = [];
+    console.log = (message: string) => { logMessages.push(message); };
+    
+    const result = generateChart(Infinity, 10);
+    
+    expect(result).toBe("–––––|––––");
+    expect(logMessages[0]).toBe("Invalid fraction value: Infinity - using balanced chart");
+    
+    console.log = originalLog;
+  });
+
+  test("should handle negative input gracefully", () => {
+    const originalLog = console.log;
+    const logMessages: string[] = [];
+    console.log = (message: string) => { logMessages.push(message); };
+    
+    const result = generateChart(-0.5, 10);
+    
+    expect(result).toBe("–––––|––––");
+    expect(logMessages[0]).toBe("Invalid fraction value: -0.5 - using balanced chart");
+    
+    console.log = originalLog;
+  });
+
+  test("should handle normal input correctly", () => {
+    const result = generateChart(0.3, 10);
+    expect(result).toBe("–––|––––––");
+  });
+
+  test("should handle 0% fraction correctly", () => {
+    const result = generateChart(0, 10);
+    expect(result).toBe("|–––––––––");
+  });
+
+  test("should handle 100% fraction correctly", () => {
+    const result = generateChart(1, 10);
+    expect(result).toBe("–––––––––|");
+  });
+});
+
+describe("Integration Tests", () => {
+  test("should handle real Last.fm empty response structure", async () => {
+    const originalLog = console.log;
+    const logMessages: string[] = [];
+    console.log = (message: string) => { logMessages.push(message); };
+    
+    const emptyLastFMResponse: never[] = [];
+    
+    const result = await createTopArtistList(emptyLastFMResponse, 5, mockConfig);
+    
+    expect(result).toBe("No spotify this week – probably exploring podcasts, audiobooks and analog music.");
+    expect(logMessages[0]).toBe("No listening data found for this week - using fallback message");
+    
+    console.log = originalLog;
   });
 });

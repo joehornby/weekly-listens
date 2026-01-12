@@ -97,16 +97,28 @@ async function getTopArtists(config: Config) {
   return artist;
 }
 
-async function createTopArtistList(
+export async function createTopArtistList(
   artists: LastFMUserGetTopArtistsResponse["topartists"]["artist"],
   listLength: number,
   config: Config
 ) {
+  // Handle empty data case with creative message
+  if (artists.length === 0) {
+    console.log("No listening data found for this week - using fallback message");
+    return "No spotify this week – probably exploring podcasts, audiobooks and analog music.";
+  }
+
   const numberOfArtists = Math.min(listLength, artists.length);
 
   const totalPlays = artists
     .slice(0, numberOfArtists)
     .reduce((total, { playcount }) => total + parseInt(playcount, 10), 0);
+
+  // Additional safeguard for edge cases where total plays is zero
+  if (totalPlays === 0) {
+    console.log("Total plays is zero - using fallback message");
+    return "No spotify this week – probably exploring podcasts, audiobooks and analog music.";
+  }
 
   const lines = await Promise.all(
     artists.map(async ({ name, playcount }, index) => {
@@ -156,9 +168,19 @@ export function adjustAndPad(str: string, maxWidth: number) {
   return truncatedStr + " ".repeat(paddingNeeded);
 }
 
-function generateChart(fraction: number, size: number) {
+export function generateChart(fraction: number, size: number) {
+  // Handle edge cases (NaN, Infinity, negative numbers)
+  if (!isFinite(fraction) || fraction < 0 || fraction > 1) {
+    console.log(`Invalid fraction value: ${fraction} - using balanced chart`);
+    // Return a balanced chart as fallback
+    const middle = Math.floor(size / 2);
+    return "–".repeat(middle) + "|" + "–".repeat(size - middle - 1);
+  }
+  
   const position = Math.floor(fraction * size);
-  return "–".repeat(position) + "|" + "–".repeat(size - position - 1);
+  // Ensure position is within bounds (0 to size-1)
+  const clampedPosition = Math.min(Math.max(position, 0), size - 1);
+  return "–".repeat(clampedPosition) + "|" + "–".repeat(size - clampedPosition - 1);
 }
 
 async function isArtistNewThisWeek(
@@ -218,6 +240,9 @@ async function updateGist(
   }
 }
 
-(async () => {
-  await main();
-})();
+// Only run main when not in test environment
+if (!process.env.NODE_ENV?.includes('test')) {
+  (async () => {
+    await main();
+  })();
+}
