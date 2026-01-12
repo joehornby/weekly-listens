@@ -170,7 +170,7 @@ export function adjustAndPad(str: string, maxWidth: number) {
 
 export function generateChart(fraction: number, size: number) {
   // Handle edge cases (NaN, Infinity, negative numbers)
-  if (!isFinite(fraction) || fraction < 0) {
+  if (!isFinite(fraction) || fraction < 0 || fraction > 1) {
     console.log(`Invalid fraction value: ${fraction} - using balanced chart`);
     // Return a balanced chart as fallback
     const middle = Math.floor(size / 2);
