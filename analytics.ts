@@ -488,10 +488,13 @@ function createAnalyticsMarkdown(args: {
         );
 
   return [
-    "📊 Weekly Listening Stats",
-    `DEPTH      ${depthValue}  ${depthBar}  ${describeDepth(current.depthScore)}`,
+    `DEPTH      ${depthValue}  ${depthBar}  ${describeDepth(
+      current.depthScore
+    )}`,
     `DISCOVERY  ${discoveryPercent}%   ${discoveryBar}  ${currentDiscovery.newArtists} new artists *`,
-    `VELOCITY   ${velocityLabel}  ${velocityBar}  ${describeVelocity(velocity)}`,
+    `VELOCITY   ${velocityLabel}  ${velocityBar}  ${describeVelocity(
+      velocity
+    )}`,
     "",
     `vs last week: ${depthTrend}  ${discoveryTrend}  ${velocityTrend}`,
     `Top 5 Coverage: ${Math.round(topFiveCoverage)}% of total plays`,
@@ -499,7 +502,6 @@ function createAnalyticsMarkdown(args: {
     `Total Scrobbles: ${current.totalScrobbles}`,
     "",
     "* = new this week",
-    `Updated at: ${new Date().toISOString()}`,
   ].join("\n");
 }
 
