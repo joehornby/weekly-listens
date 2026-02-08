@@ -70,3 +70,44 @@ export type LastFMArtistGetInfoResponse = Readonly<{
     };
   };
 }>;
+
+export type LastFMUserGetWeeklyChartListResponse = Readonly<{
+  weeklychartlist: {
+    chart: Array<{
+      from: string;
+      to: string;
+    }>;
+    "@attr": {
+      user: string;
+    };
+  };
+}>;
+
+export type LastFMUserGetWeeklyArtistChartResponse = Readonly<{
+  weeklyartistchart: {
+    artist:
+      | Array<{
+          mbid: string;
+          playcount: string;
+          url: string;
+          name: string;
+          "@attr"?: {
+            rank: string;
+          };
+        }>
+      | {
+          mbid: string;
+          playcount: string;
+          url: string;
+          name: string;
+          "@attr"?: {
+            rank: string;
+          };
+        };
+    "@attr": {
+      user: string;
+      from: string;
+      to: string;
+    };
+  };
+}>;
