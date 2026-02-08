@@ -8,6 +8,7 @@
     "start": "node --env-file=.env dist/index.js",
     "build": "tsup",
     "dev": "tsup --watch && npm run start",
+    "dry-run-all": "bun run build && NODE_ENV=development bun --env-file=.env dist/index.js && NODE_ENV=development bun --env-file=.env dist/analytics.js",
     "prepare": "npm run build",
     "test": "echo 'This project uses Bun for testing. Running `bun test`' && bun test"
   },
