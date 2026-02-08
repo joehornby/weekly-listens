@@ -15,9 +15,22 @@ jobs:
         
       - run: bun install
       - run: bun run build
-      - run: bun dist/index.js
+      - id: update_artists
+        continue-on-error: true
+        run: bun dist/index.js
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           LASTFM_KEY: ${{ secrets.LASTFM_KEY }}
           LASTFM_USERNAME: ${{ secrets.LASTFM_USERNAME }}
-          GIST_ID: ${{ secrets.GIST_ID }}
+          ARTISTS_GIST_ID: ${{ secrets.ARTISTS_GIST_ID }}
+      - id: update_analytics
+        continue-on-error: true
+        run: bun dist/analytics.js
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          LASTFM_KEY: ${{ secrets.LASTFM_KEY }}
+          LASTFM_USERNAME: ${{ secrets.LASTFM_USERNAME }}
+          ANALYTICS_GIST_ID: ${{ secrets.ANALYTICS_GIST_ID }}
+      - name: Fail if both updates fail
+        if: ${{ steps.update_artists.outcome == 'failure' && steps.update_analytics.outcome == 'failure' }}
+        run: exit 1

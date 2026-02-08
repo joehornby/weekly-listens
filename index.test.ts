@@ -127,7 +127,7 @@ describe("Chart Generation Edge Cases", () => {
     
     const result = generateChart(NaN, 10);
     
-    expect(result).toBe("–––––|––––");
+    expect(result).toBe("█████░░░░░");
     expect(logMessages[0]).toBe("Invalid fraction value: NaN - using balanced chart");
     
     console.log = originalLog;
@@ -140,7 +140,7 @@ describe("Chart Generation Edge Cases", () => {
     
     const result = generateChart(Infinity, 10);
     
-    expect(result).toBe("–––––|––––");
+    expect(result).toBe("█████░░░░░");
     expect(logMessages[0]).toBe("Invalid fraction value: Infinity - using balanced chart");
     
     console.log = originalLog;
@@ -153,7 +153,7 @@ describe("Chart Generation Edge Cases", () => {
     
     const result = generateChart(-0.5, 10);
     
-    expect(result).toBe("–––––|––––");
+    expect(result).toBe("█████░░░░░");
     expect(logMessages[0]).toBe("Invalid fraction value: -0.5 - using balanced chart");
     
     console.log = originalLog;
@@ -161,17 +161,17 @@ describe("Chart Generation Edge Cases", () => {
 
   test("should handle normal input correctly", () => {
     const result = generateChart(0.3, 10);
-    expect(result).toBe("–––|––––––");
+    expect(result).toBe("███░░░░░░░");
   });
 
   test("should handle 0% fraction correctly", () => {
     const result = generateChart(0, 10);
-    expect(result).toBe("|–––––––––");
+    expect(result).toBe("░░░░░░░░░░");
   });
 
   test("should handle 100% fraction correctly", () => {
     const result = generateChart(1, 10);
-    expect(result).toBe("–––––––––|");
+    expect(result).toBe("██████████");
   });
 });
 
