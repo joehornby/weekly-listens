@@ -13,7 +13,7 @@ import stringWidth from "string-width";
 const MAX_NUM_ARTISTS = 5;
 
 const config = {
-  gistId: process.env.GIST_ID,
+  gistId: process.env.ARTISTS_GIST_ID ?? process.env.GIST_ID,
   githubToken: process.env.GH_TOKEN,
   lastfmKey: process.env.LASTFM_KEY,
   lastfmUsername: process.env.LASTFM_USERNAME,
@@ -83,7 +83,7 @@ async function getGist<GistResponseDataType>(id: string) {
 async function getTopArtists(config: Config) {
   const { lastfmKey, lastfmUsername } = config;
   const API_BASE =
-    "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&format=json&period=7day&";
+    "https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&format=json&period=7day&";
   const API_ENDPOINT = `${API_BASE}user=${lastfmUsername}&api_key=${lastfmKey}&limit=${MAX_NUM_ARTISTS}`;
   const response = await fetch(API_ENDPOINT);
   if (!response.ok) {
@@ -121,7 +121,7 @@ export async function createTopArtistList(
   }
 
   const lines = await Promise.all(
-    artists.map(async ({ name, playcount }, index) => {
+    artists.slice(0, numberOfArtists).map(async ({ name, playcount }, index) => {
       // Find out if artist is new this week
       const isNewThisWeek = await isArtistNewThisWeek(
         name,
@@ -140,7 +140,10 @@ export async function createTopArtistList(
     })
   );
 
-  return lines.join("\n") + `\n\n* = new this week`;
+  return (
+    lines.join("\n") +
+    `\n\n* = new this week`
+  );
 }
 
 export function adjustAndPad(str: string, maxWidth: number) {
@@ -174,13 +177,11 @@ export function generateChart(fraction: number, size: number) {
     console.log(`Invalid fraction value: ${fraction} - using balanced chart`);
     // Return a balanced chart as fallback
     const middle = Math.floor(size / 2);
-    return "–".repeat(middle) + "|" + "–".repeat(size - middle - 1);
+    return "█".repeat(middle) + "░".repeat(size - middle);
   }
   
-  const position = Math.floor(fraction * size);
-  // Ensure position is within bounds (0 to size-1)
-  const clampedPosition = Math.min(Math.max(position, 0), size - 1);
-  return "–".repeat(clampedPosition) + "|" + "–".repeat(size - clampedPosition - 1);
+  const filled = Math.min(Math.max(Math.round(fraction * size), 0), size);
+  return "█".repeat(filled) + "░".repeat(size - filled);
 }
 
 async function isArtistNewThisWeek(
@@ -189,7 +190,7 @@ async function isArtistNewThisWeek(
   config: Config
 ) {
   const { lastfmKey, lastfmUsername } = config;
-  const API_ENDPOINT = `http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${name}&username=${lastfmUsername}&api_key=${lastfmKey}&format=json`;
+  const API_ENDPOINT = `https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${name}&username=${lastfmUsername}&api_key=${lastfmKey}&format=json`;
   try {
     const response = await fetch(API_ENDPOINT);
     if (!response.ok) {
@@ -225,9 +226,7 @@ async function updateGist(
       gist_id: config.gistId!,
       files: {
         [filename]: {
-          filename: `🎧 This week's soundtrack ${
-            new Date().toISOString().split("T")[0]
-          }`,
+          filename: title,
           content,
         },
       },
