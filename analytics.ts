@@ -113,7 +113,6 @@ async function main() {
     const previousDepth = weeklyMetrics[1]?.depthScore ?? null;
     const topFiveCoverage = calculateTopFiveCoverage(current.artists);
     const content = createAnalyticsMarkdown({
-      runDate,
       current,
       currentDiscovery,
       velocity,
@@ -387,24 +386,45 @@ export function generateProgressBar(fraction: number, size = BAR_SIZE): string {
   return "█".repeat(filled) + "░".repeat(size - filled);
 }
 
+function getDirectionArrow(value: number): string {
+  if (value > 0) {
+    return "↑";
+  }
+  if (value < 0) {
+    return "↓";
+  }
+  return "→";
+}
+
 function formatVelocity(velocity: number | null): string {
   if (velocity === null) {
     return "insufficient history";
   }
-  return `${velocity >= 0 ? "+" : ""}${Math.round(velocity)}%`;
+
+  return `${getDirectionArrow(velocity)} ${Math.abs(Math.round(velocity))}%`;
 }
 
 function describeDepth(score: number): string {
   if (score >= 0.75) {
-    return "Deep Dive 🔬";
+    return "deep dive";
   }
   if (score >= 0.5) {
-    return "Focused Loop 🎯";
+    return "focused loop";
   }
   if (score >= 0.3) {
-    return "Balanced Mix 🎧";
+    return "balanced mix";
   }
-  return "Wide Discovery 🌍";
+  return "wide discovery";
+}
+
+function describeDiscoveryLevel(rate: number): string {
+  if (rate >= 40) {
+    return "High";
+  }
+  if (rate >= 20) {
+    return "Medium";
+  }
+  return "Low";
 }
 
 function describeVelocity(velocity: number | null): string {
@@ -412,37 +432,42 @@ function describeVelocity(velocity: number | null): string {
     return "insufficient history";
   }
   if (velocity >= 20) {
-    return "Surge week 🚀";
+    return "surge week";
   }
   if (velocity >= 5) {
-    return "Binge week 🚀";
+    return "binge week";
   }
   if (velocity > -5) {
-    return "Steady pace ➡️";
+    return "steady pace";
   }
   if (velocity > -20) {
-    return "Cool-off week 🧊";
+    return "cool-off week";
   }
-  return "Slow week 🐢";
+  return "slow week";
 }
 
-function formatTrend(
-  label: string,
+function formatChange(
   current: number,
   previous: number | null,
   formatter: (delta: number) => string
 ): string {
   if (previous === null) {
-    return `→ ${label} n/a`;
+    return "n/a";
   }
 
   const delta = current - previous;
-  const arrow = delta > 0 ? "↗" : delta < 0 ? "↘" : "→";
-  return `${arrow} ${label} ${formatter(delta)}`;
+  return `${getDirectionArrow(delta)} ${formatter(delta)}`;
 }
 
-function createAnalyticsMarkdown(args: {
-  runDate: string;
+function formatMetricRow(label: string, currentValue: string, changeValue: string): string {
+  return `${label.padEnd(10)} ${currentValue.padEnd(24)} ${changeValue}`;
+}
+
+function formatSummaryRow(label: string, value: string | number): string {
+  return `${label.padEnd(16)} ${value}`;
+}
+
+export function createAnalyticsMarkdown(args: {
   current: WeeklyMetrics;
   currentDiscovery: DiscoveryMetrics;
   velocity: number | null;
@@ -452,7 +477,6 @@ function createAnalyticsMarkdown(args: {
   topFiveCoverage: number;
 }) {
   const {
-    runDate,
     current,
     currentDiscovery,
     velocity,
@@ -462,46 +486,44 @@ function createAnalyticsMarkdown(args: {
     topFiveCoverage,
   } = args;
 
-  const depthValue = current.depthScore.toFixed(2);
-  const depthBar = generateProgressBar(current.depthScore);
-  const discoveryPercent = Math.round(currentDiscovery.discoveryRate);
-  const discoveryBar = generateProgressBar(currentDiscovery.discoveryRate / 100);
-  const velocityBar = generateProgressBar(
-    velocity === null ? Number.NaN : Math.min(Math.abs(velocity) / 50, 1)
-  );
+  const depthValue = `${current.depthScore.toFixed(2)}  ${describeDepth(
+    current.depthScore
+  )}`;
+  const discoveryValue = `${describeDiscoveryLevel(
+    currentDiscovery.discoveryRate
+  )} (${currentDiscovery.newArtists} new artists)`;
+  const velocityValue =
+    velocity === null
+      ? "insufficient history"
+      : `${formatVelocity(velocity)}  ${describeVelocity(velocity)}`;
 
-  const velocityLabel = formatVelocity(velocity);
-  const depthTrend = formatTrend("Depth", current.depthScore, previousDepth, (delta) =>
+  const depthTrend = formatChange(current.depthScore, previousDepth, (delta) =>
     `${delta >= 0 ? "+" : ""}${delta.toFixed(2)}`
   );
-  const discoveryTrend = formatTrend(
-    "Discovery",
+  const discoveryTrend = formatChange(
     currentDiscovery.discoveryRate,
     previousDiscoveryRate,
     (delta) => `${delta >= 0 ? "+" : ""}${Math.round(delta)}%`
   );
   const velocityTrend =
     velocity === null || previousVelocity === null
-      ? "→ Velocity insufficient history"
-      : formatTrend("Velocity", velocity, previousVelocity, (delta) =>
+      ? "n/a"
+      : formatChange(velocity, previousVelocity, (delta) =>
           `${delta >= 0 ? "+" : ""}${Math.round(delta)}%`
         );
 
   return [
-    `DEPTH      ${depthValue}  ${depthBar}  ${describeDepth(
-      current.depthScore
-    )}`,
-    `DISCOVERY  ${discoveryPercent}%   ${discoveryBar}  ${currentDiscovery.newArtists} new artists *`,
-    `VELOCITY   ${velocityLabel}  ${velocityBar}  ${describeVelocity(
-      velocity
-    )}`,
+    "METRIC     THIS WEEK                CHANGE",
+    formatMetricRow("Depth", depthValue, depthTrend),
+    formatMetricRow("Discovery", discoveryValue, discoveryTrend),
+    formatMetricRow("Velocity", velocityValue, velocityTrend),
     "",
-    `vs last week: ${depthTrend}  ${discoveryTrend}  ${velocityTrend}`,
-    `Top 5 Coverage: ${Math.round(topFiveCoverage)}% of total plays`,
-    `Unique Artists: ${current.uniqueArtists}`,
-    `Total Scrobbles: ${current.totalScrobbles}`,
+    "SUMMARY",
+    formatSummaryRow("Top 5 coverage", `${Math.round(topFiveCoverage)}% of total plays`),
+    formatSummaryRow("Unique artists", current.uniqueArtists),
+    formatSummaryRow("Total scrobbles", current.totalScrobbles),
     "",
-    "* = new this week",
+    "Velocity = change vs trailing 4-week average",
   ].join("\n");
 }
 
