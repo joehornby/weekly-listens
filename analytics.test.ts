@@ -70,7 +70,7 @@ describe("createAnalyticsMarkdown", () => {
       })
     ).toBe(`METRIC     THIS WEEK                CHANGE
 Depth      0.45  balanced mix       ↓ -0.16
-Discovery  Medium (15 new artists)  ↑ +16%
+Artists    15 new / 46 total        ↑ +16%
 Velocity   ↓ 49%  slow week         ↓ -127%
 
 SUMMARY
@@ -78,6 +78,7 @@ Top 5 coverage   47% of total plays
 Unique artists   46
 Total scrobbles  96
 
+Artists change = discovery rate vs last week
 Velocity = change vs trailing 4-week average`);
   });
 
