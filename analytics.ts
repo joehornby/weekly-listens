@@ -417,16 +417,6 @@ function describeDepth(score: number): string {
   return "wide discovery";
 }
 
-function describeDiscoveryLevel(rate: number): string {
-  if (rate >= 40) {
-    return "High";
-  }
-  if (rate >= 20) {
-    return "Medium";
-  }
-  return "Low";
-}
-
 function describeVelocity(velocity: number | null): string {
   if (velocity === null) {
     return "insufficient history";
@@ -489,9 +479,7 @@ export function createAnalyticsMarkdown(args: {
   const depthValue = `${current.depthScore.toFixed(2)}  ${describeDepth(
     current.depthScore
   )}`;
-  const discoveryValue = `${describeDiscoveryLevel(
-    currentDiscovery.discoveryRate
-  )} (${currentDiscovery.newArtists} new artists)`;
+  const artistsValue = `${currentDiscovery.newArtists} new / ${current.uniqueArtists} total`;
   const velocityValue =
     velocity === null
       ? "insufficient history"
@@ -515,7 +503,7 @@ export function createAnalyticsMarkdown(args: {
   return [
     "METRIC     THIS WEEK                CHANGE",
     formatMetricRow("Depth", depthValue, depthTrend),
-    formatMetricRow("Discovery", discoveryValue, discoveryTrend),
+    formatMetricRow("Artists", artistsValue, discoveryTrend),
     formatMetricRow("Velocity", velocityValue, velocityTrend),
     "",
     "SUMMARY",
@@ -523,6 +511,7 @@ export function createAnalyticsMarkdown(args: {
     formatSummaryRow("Unique artists", current.uniqueArtists),
     formatSummaryRow("Total scrobbles", current.totalScrobbles),
     "",
+    "Artists change = discovery rate vs last week",
     "Velocity = change vs trailing 4-week average",
   ].join("\n");
 }
